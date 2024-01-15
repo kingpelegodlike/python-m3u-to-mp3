@@ -93,7 +93,7 @@ class M3U2MP3():
                         logger.debug("File '{}' NOT exists.".format(mp3_file_path))
 
 
-if __name__ == "__main__":
+if __name__ == "__main__": # pragma: no cover
     args = parse_arguments()
 
     m3u_to_mp3 = M3U2MP3(args.m3u_dir, args.mp3_dir)
