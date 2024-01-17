@@ -30,14 +30,18 @@ logger.addHandler(loghdlr)
 def parse_arguments():
     """ Parse command-line arguments
         Example : python m3u_to_mp3/m3u_to_mp3.py
-              -i ./m3u_dir
-              -o ./mp3_dir
+              -i/--intput ./m3u_dir
+              -o/--output ./mp3_dir
+              [-p/--prefix prefix]
+              [-c]
     """
     description = \
         'Read M3U files and copy the mp3 files listed.\n' \
         'Ex: python m3u_to_mp3/m3u_to_mp3.py' \
-        '    -i ./m3u_dir' \
-        '    -o ./mp3_dir'
+        '    -i/--intput ./m3u_dir' \
+        '    -o/--output ./mp3_dir' \
+        '    [-p/--prefix] prefix' \
+        '    [-c/--check]'
     parser = argparse.ArgumentParser(
         description=\
             description,
