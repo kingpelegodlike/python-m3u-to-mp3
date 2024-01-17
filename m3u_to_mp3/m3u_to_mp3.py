@@ -60,14 +60,22 @@ def parse_arguments():
                         , default=None
                         , required=False)
 
+    parser.add_argument("-c", "--check"
+                        , help="Check only MP3 files in M3U files."
+                        , dest="check"
+                        , action='store_true'
+                        , default=False
+                        , required=False)
+
     return parser.parse_args()
 
 class M3U2MP3():
     ''' Class to read M3U files and copy the mp3 files listed '''
-    def __init__(self, input_dir, output_dir, prefix=None):
+    def __init__(self, input_dir, output_dir, prefix=None, check=False):
         self.input_dir = input_dir
         self.output_dir = output_dir
         self.prefix = prefix
+        self.check = check
 
     def parse_playlists(self):
         m3u_file_name_list = fnmatch.filter(os.listdir(self.input_dir), '*.m3u')
@@ -84,7 +92,8 @@ class M3U2MP3():
             encoding = detection["encoding"]
             # logger.debug(m3u_file_path.decode(encoding))
             mp3_dir = os.path.join(self.output_dir, m3u_file_name.replace(".m3u", ""))
-            os.makedirs(mp3_dir, exist_ok=True)
+            if not self.check:
+                os.makedirs(mp3_dir, exist_ok=True)
             with open(m3u_file_full_path, 'r', encoding=encoding) as m3u_file:
                 m3u_file_lines = m3u_file.readlines()
                 count = 0
@@ -97,14 +106,17 @@ class M3U2MP3():
                     mp3_file_path = os.path.join(self.input_dir, mp3_file_name)
                     check_mp3_file = os.path.isfile(mp3_file_path)
                     if check_mp3_file:
-                        logger.debug("Copy {} to {} directory".format(mp3_file_path, mp3_dir))
-                        shutil.copy2(mp3_file_path, mp3_dir)
+                        if self.check:
+                            logger.debug("File {} exists".format(mp3_file_path))
+                        else:
+                            logger.debug("Copy {} to {} directory".format(mp3_file_path, mp3_dir))
+                            shutil.copy2(mp3_file_path, mp3_dir)
                     else:
-                        logger.warning("File '{}' NOT exists.".format(mp3_file_path))
+                        logger.warning("Playlist:{}. File '{}' NOT exists.".format(m3u_file_name, mp3_file_path))
 
 
 if __name__ == "__main__": # pragma: no cover
     args = parse_arguments()
 
-    m3u_to_mp3 = M3U2MP3(args.m3u_dir, args.mp3_dir, args.prefix)
+    m3u_to_mp3 = M3U2MP3(args.m3u_dir, args.mp3_dir, args.prefix, args.check)
     m3u_to_mp3.parse_playlists()

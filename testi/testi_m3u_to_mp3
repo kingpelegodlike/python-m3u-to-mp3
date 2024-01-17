@@ -4,5 +4,5 @@ from m3u_to_mp3 import M3U2MP3
 
 mp3_dir = os.path.join(os.getcwd(), 'log', 'mp3_dir')
 os.makedirs(mp3_dir, exist_ok=True)
-m3u_to_mp3 = M3U2MP3(os.path.join("testi","data", "m3u_dir"), os.path.join("log", "mp3_dir"), "playlist")
+m3u_to_mp3 = M3U2MP3(os.path.join("testi","data", "m3u_dir"), os.path.join("log", "mp3_dir"), "playlist", False)
 m3u_to_mp3.parse_playlists()
