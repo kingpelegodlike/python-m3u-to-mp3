@@ -8,7 +8,7 @@ import chardet
 from pathlib import Path
 
 pid = os.getpid()
-print(pid)
+print("PID is '{}'".format(pid))
 log_directory = os.path.join(os.getcwd(), 'log')
 os.makedirs(log_directory, exist_ok=True)
 log_file = os.path.join(log_directory, 'm3u_to_mp3.log')
@@ -29,13 +29,13 @@ logger.addHandler(loghdlr)
 
 def parse_arguments():
     """ Parse command-line arguments
-    Exemple : python m3u_to_mp3\m3u_to_mp3.py
+        Example : python m3u_to_mp3/m3u_to_mp3.py
               -i ./m3u_dir
               -o ./mp3_dir
     """
     description = \
         'Read M3U files and copy the mp3 files listed.\n' \
-        'Ex: python m3u_to_mp3\m3u_to_mp3.py' \
+        'Ex: python m3u_to_mp3/m3u_to_mp3.py' \
         '    -i ./m3u_dir' \
         '    -o ./mp3_dir'
     parser = argparse.ArgumentParser(
@@ -54,16 +54,26 @@ def parse_arguments():
                         , dest="mp3_dir"
                         , required=True)
 
+    parser.add_argument("-p", "--prefix"
+                        , help="M3U files prefix."
+                        , dest="prefix"
+                        , default=None
+                        , required=False)
+
     return parser.parse_args()
 
 class M3U2MP3():
     ''' Class to read M3U files and copy the mp3 files listed '''
-    def __init__(self, input_dir, output_dir):
+    def __init__(self, input_dir, output_dir, prefix=None):
         self.input_dir = input_dir
         self.output_dir = output_dir
+        self.prefix = prefix
 
     def parse_playlists(self):
         m3u_file_name_list = fnmatch.filter(os.listdir(self.input_dir), '*.m3u')
+        if self.prefix is not None:
+            m3u_file_name_list = fnmatch.filter(os.listdir(self.input_dir), '{}*.m3u'.format(self.prefix))
+        logger.debug("M3U file list is '{}'".format(m3u_file_name_list))
         for m3u_file_name in m3u_file_name_list:
             logger.debug("M3U file is '{}'".format(m3u_file_name))
             m3u_file_full_path = os.path.join(self.input_dir, m3u_file_name)
@@ -90,11 +100,11 @@ class M3U2MP3():
                         logger.debug("Copy {} to {} directory".format(mp3_file_path, mp3_dir))
                         shutil.copy2(mp3_file_path, mp3_dir)
                     else:
-                        logger.debug("File '{}' NOT exists.".format(mp3_file_path))
+                        logger.warning("File '{}' NOT exists.".format(mp3_file_path))
 
 
 if __name__ == "__main__": # pragma: no cover
     args = parse_arguments()
 
-    m3u_to_mp3 = M3U2MP3(args.m3u_dir, args.mp3_dir)
+    m3u_to_mp3 = M3U2MP3(args.m3u_dir, args.mp3_dir, args.prefix)
     m3u_to_mp3.parse_playlists()
